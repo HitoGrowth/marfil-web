@@ -1,0 +1,108 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms@0.231.0/schema/sveltia-cms.json
+#
+# Panel de administración del blog de Marfil Tannery (Sveltia CMS).
+# Antes de publicar, sustituye los dos valores marcados con  <-- CAMBIAR  (ver ADMIN-BLOG.md).
+
+backend:
+  name: github
+  repo: PROPIETARIO/marfil-web # <-- CAMBIAR: usuario-u-organización/repositorio de GitHub
+  branch: main
+  base_url: https://sveltia-cms-auth.CAMBIAR.workers.dev # <-- CAMBIAR: URL del Worker de inicio de sesión
+  commit_messages:
+    create: 'Blog: nuevo artículo «{{slug}}»'
+    update: 'Blog: actualiza «{{slug}}»'
+    delete: 'Blog: elimina «{{slug}}»'
+    uploadMedia: 'Blog: sube imagen {{path}}'
+    deleteMedia: 'Blog: elimina imagen {{path}}'
+
+site_url: https://marfil.com.mx
+
+# Las imágenes se guardan en la web y se convierten a WebP, máximo 1600 px
+media_folder: marfil/img/blog
+public_folder: /img/blog
+media_libraries:
+  default:
+    config:
+      slugify_filename: true
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 1600
+          height: 1600
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  maxlength: 80
+
+i18n:
+  structure: single_file
+  locales: [es, en, zh]
+  default_locale: es
+
+collections:
+  - name: blog
+    label: Blog
+    label_singular: Artículo
+    description: Artículos del blog. El español es obligatorio; si falta el inglés o el chino, la web muestra el texto en español.
+    folder: content/blog
+    format: json
+    i18n: true
+    create: true
+    delete: true
+    slug: '{{title}}'
+    identifier_field: title
+    summary: '{{title}} · {{date}} · {{locales}}'
+    preview_path: blog/{{slug}}.html
+    sortable_fields:
+      fields: [date, title]
+      default:
+        field: date
+        direction: descending
+    fields:
+      - name: title
+        label: Título
+        widget: string
+        i18n: true
+        required: [es]
+        maxlength: 110
+      - name: date
+        label: Fecha de publicación
+        widget: datetime
+        type: date
+        picker_utc: true
+        default: '{{now}}'
+        i18n: duplicate
+      - name: cover
+        label: Imagen de portada
+        hint: Foto horizontal. Se recorta en formato 3:2 en las tarjetas.
+        widget: image
+        i18n: duplicate
+      - name: cover_alt
+        label: Descripción de la imagen
+        hint: Qué se ve en la foto, para personas con lector de pantalla y para Google.
+        widget: string
+        i18n: true
+        required: false
+        maxlength: 140
+      - name: excerpt
+        label: Resumen
+        hint: Una o dos frases. Aparece en las tarjetas del blog y en Google.
+        widget: text
+        i18n: true
+        required: [es]
+        maxlength: 220
+      - name: body
+        label: Texto del artículo
+        widget: markdown
+        i18n: true
+        required: [es]
+        buttons: [bold, italic, link, heading-two, heading-three, bulleted-list, numbered-list, quote]
+        editor_components: [image]
+      - name: published
+        label: Publicado
+        hint: Desactívalo para ocultar el artículo de la web sin borrarlo.
+        widget: boolean
+        default: true
+        i18n: duplicate
